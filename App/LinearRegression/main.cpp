@@ -15,9 +15,9 @@ std::ostream& operator << ( std::ostream& os, const kvs::ValueArray<T>& values )
 }
 
 template <typename T>
-kvs::ValueArray<T> Random( const size_t n )
+kvs::ValueArray<T> Random( const size_t n, const unsigned long seed )
 {
-    kvs::MersenneTwister engine;
+    kvs::MersenneTwister engine( seed );
     kvs::ValueArray<T> values( n );
     for ( size_t i = 0; i < n; i++ )
     {
@@ -29,9 +29,9 @@ kvs::ValueArray<T> Random( const size_t n )
 int main( int argc, char** argv )
 {
     const size_t n = 10;
-    kvs::ValueArray<float> Y = Random<float>( n );
-    kvs::ValueArray<float> X0 = Random<float>( n );
-    kvs::ValueArray<float> X1 = Random<float>( n );
+    kvs::ValueArray<float> Y = Random<float>( n, 0 );
+    kvs::ValueArray<float> X0 = Random<float>( n, 1 );
+    kvs::ValueArray<float> X1 = Random<float>( n, 2 );
 
     std::cout << "Y  = {" << Y << "}" << std::endl;
     std::cout << "X0 = {" << X0 << "}" << std::endl;
