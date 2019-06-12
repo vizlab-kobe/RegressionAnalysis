@@ -48,7 +48,7 @@ private:
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import Lasso" << std::endl;
         code << "def main( X, y ):" << std::endl;
-        code << "    model = Lasso( alpha=0.5 )" << std::endl;
+        code << "    model = Lasso( alpha=1.0 )" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
