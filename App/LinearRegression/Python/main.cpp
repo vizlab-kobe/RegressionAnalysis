@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include "LinearRegression.h"
 
 
 template <typename T>
@@ -42,7 +43,7 @@ int main( int argc, char** argv )
     indep[0] = X0;
     indep[1] = X1;
 
-    kvs::LinearRegression<float> regression( dep, indep );
+    local::sklearn::LinearRegression<float> regression( dep, indep );
     std::cout << "Coef: " << regression.coef() << std::endl;
     std::cout << "R2: " << regression.r2() << std::endl;
     std::cout << "t-values: " << regression.tValues() << std::endl;
