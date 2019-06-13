@@ -49,16 +49,10 @@ int main( int argc, char** argv )
     std::cout << "Coef: " << regression.coef() << std::endl;
     std::cout << "R2: " << regression.r2() << std::endl;
 
-    const size_t dof = n - p - 1; // degree of freedom
-    kvs::StudentTDistribution tdist( dof );
-    const kvs::Vector<float>& tvalues = regression.tValues();
-    kvs::Vector<float> pvalues( tvalues.size() );
-    for ( size_t i = 0; i < pvalues.size(); i++ )
-    {
-        pvalues[i] = 2.0f * ( 1.0f - tdist.cdf( tvalues[i] ) );
-    }
-    std::cout << "t-values: " << tvalues << std::endl;
-    std::cout << "p-values: " << pvalues << std::endl;
+    regression.test();
+    std::cout << "Standard errors: " << regression.standardErrors() << std::endl;
+    std::cout << "T-values: " << regression.tValues() << std::endl;
+    std::cout << "P-values: " << regression.pValues() << std::endl;
 
     return 0;
 }
