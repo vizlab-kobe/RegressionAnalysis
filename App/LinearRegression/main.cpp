@@ -3,6 +3,7 @@
 #include <kvs/ValueTable>
 #include <kvs/LinearRegression>
 #include <kvs/StudentTDistribution>
+#include <kvs/Timer>
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -30,7 +31,7 @@ kvs::ValueArray<T> Random( const size_t n, const unsigned long seed )
 int main( int argc, char** argv )
 {
     const size_t n = 10; // data size
-    const size_t p = 2; // number of independent variables
+    const size_t k = 2; // number of independent variables
 
     kvs::ValueArray<float> Y = Random<float>( n, 0 );
     kvs::ValueArray<float> X0 = Random<float>( n, 1 );
@@ -41,18 +42,24 @@ int main( int argc, char** argv )
     std::cout << "X1 = {" << X1 << "}" << std::endl;
 
     kvs::ValueArray<float> dep( Y );
-    kvs::ValueTable<float> indep( n, p );
+    kvs::ValueTable<float> indep( n, k );
     indep[0] = X0;
     indep[1] = X1;
 
+    kvs::Timer timer( kvs::Timer::Start );
     kvs::LinearRegression<float> regression( dep, indep );
+    timer.stop();
     std::cout << "Coef: " << regression.coef() << std::endl;
     std::cout << "R2: " << regression.r2() << std::endl;
+    std::cout << "    Fitting time:" << timer.msec() << " [msec]" << std::endl;
 
+    timer.start();
     regression.test();
+    timer.stop();
     std::cout << "Standard errors: " << regression.standardErrors() << std::endl;
     std::cout << "T-values: " << regression.tValues() << std::endl;
     std::cout << "P-values: " << regression.pValues() << std::endl;
+    std::cout << "    Testing time:" << timer.msec() << " [msec]" << std::endl;
 
     return 0;
 }

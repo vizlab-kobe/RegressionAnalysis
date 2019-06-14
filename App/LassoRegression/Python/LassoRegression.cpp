@@ -7,6 +7,7 @@
 #include <kvs/python/Array>
 #include <kvs/python/Float>
 #include <kvs/python/NumPy>
+#include <kvs/StudentTDistribution>
 
 
 namespace
@@ -57,8 +58,7 @@ private:
         code << "    mse = rss / ( len(nx) - len(nx[0]) )" << std::endl;
         code << "    var = mse * np.linalg.inv( np.dot( nx.T, nx ) ).diagonal()" << std::endl;
         code << "    se = np.sqrt( var.astype( np.float32 ) )" << std::endl;
-        code << "    tvals = coef / se" << std::endl;
-        code << "    return [ coef, r2, rss, tvals ]" << std::endl;
+        code << "    return [ coef, r2, se ]" << std::endl;
         return code.str();
     }
 };
@@ -96,14 +96,29 @@ void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
     // Execute the python function
     kvs::python::List list = function.call( args );
     const kvs::ValueArray<T> coef = kvs::ValueArray<T>( kvs::python::Array( list[0] ) );
-    const float r2 = kvs::python::Float( list[1] );
-    const float rss = kvs::python::Float( list[2] );
-    const kvs::ValueArray<T> tvals = kvs::ValueArray<T>( kvs::python::Array( list[3] ) );
-
-    m_r2 = r2;
-    m_rss = rss;
     m_coef = kvs::Vector<T>( coef.size(), coef.data() );
-    m_t_values = kvs::Vector<T>( tvals.size(), tvals.data() );
+    m_r2 = kvs::python::Float( list[1] );
+
+    const kvs::ValueArray<T> se = kvs::ValueArray<T>( kvs::python::Array( list[2] ) );
+    m_standard_errors = kvs::Vector<T>( se.size(), se.data() );
+
+    const size_t n = dep.size();
+    const size_t k = indep.columnSize();
+    m_dof = n - k - 1;
+    m_adjusted_r2 = 1.0 - ( 1.0 - m_r2 ) * ( n - 1.0 ) / m_dof;
+}
+
+template <typename T>
+void LassoRegression<T>::test()
+{
+    m_t_values.setSize( m_coef.size() );
+    m_p_values.setSize( m_coef.size() );
+    kvs::StudentTDistribution tdist( m_dof );
+    for ( size_t i = 0; i < m_coef.size(); i++ )
+    {
+        m_t_values[i] = m_coef[i] / m_standard_errors[i];
+        m_p_values[i] = 2.0 * ( 1.0 - tdist.cdf( m_t_values[i] ) );
+    }
 }
 
 // template instantiation
