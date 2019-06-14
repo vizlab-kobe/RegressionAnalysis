@@ -8,6 +8,7 @@
 #include <kvs/python/Float>
 #include <kvs/python/NumPy>
 #include <kvs/StudentTDistribution>
+#include <kvs/String>
 
 
 namespace
@@ -16,9 +17,9 @@ namespace
 class Function
 {
 public:
-    static Function& Instance()
+    static Function& Instance( const float alpha )
     {
-        static Function function;
+        static Function function( alpha );
         return function;
     }
 
@@ -31,10 +32,10 @@ private:
     kvs::python::Interpreter* m_interpreter;
     kvs::python::Module* m_module;
 
-    Function()
+    Function( const float alpha )
     {
         m_interpreter = new kvs::python::Interpreter( true );
-        m_module = new kvs::python::Module( this->code(), "Regression" );
+        m_module = new kvs::python::Module( this->code( alpha ), "Regression" );
     }
 
     ~Function()
@@ -43,13 +44,15 @@ private:
         delete m_module;
     }
 
-    const std::string code()
+    const std::string code( const float alpha )
     {
         std::stringstream code;
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import Lasso" << std::endl;
         code << "def main( X, y ):" << std::endl;
-        code << "    model = Lasso( alpha=1.0 )" << std::endl;
+        code << "    model = Lasso( "
+             << "alpha=" << kvs::String::ToString( alpha )
+             << ")" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
@@ -73,7 +76,20 @@ namespace sklearn
 {
 
 template <typename T>
-LassoRegression<T>::LassoRegression( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep )
+LassoRegression<T>::LassoRegression():
+    m_dof( 0 ),
+    m_r2( 0.0 ),
+    m_adjusted_r2( 0.0 ),
+    m_complexity( 1.0 )
+{
+}
+
+template <typename T>
+LassoRegression<T>::LassoRegression( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep ):
+    m_dof( 0 ),
+    m_r2( 0.0 ),
+    m_adjusted_r2( 0.0 ),
+    m_complexity( 1.0 )
 {
     this->fit( dep, indep );
 }
@@ -84,7 +100,7 @@ void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
     KVS_ASSERT( dep.size() == indep.column(0).size() );
 
     // Calable python function
-    kvs::python::Callable function = ::Function::Instance().callable();
+    kvs::python::Callable function = ::Function::Instance( m_complexity ).callable();
 
     // Arguments
     kvs::python::Table X( indep );

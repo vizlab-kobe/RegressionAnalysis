@@ -16,9 +16,9 @@ namespace
 class Function
 {
 public:
-    static Function& Instance()
+    static Function& Instance( const float alpha, const float l1_ratio )
     {
-        static Function function;
+        static Function function( alpha, l1_ratio );
         return function;
     }
 
@@ -31,10 +31,10 @@ private:
     kvs::python::Interpreter* m_interpreter;
     kvs::python::Module* m_module;
 
-    Function()
+    Function( const float alpha, const float l1_ratio )
     {
         m_interpreter = new kvs::python::Interpreter( true );
-        m_module = new kvs::python::Module( this->code(), "Regression" );
+        m_module = new kvs::python::Module( this->code( alpha, l1_ratio ), "Regression" );
     }
 
     ~Function()
@@ -43,13 +43,16 @@ private:
         delete m_module;
     }
 
-    const std::string code()
+    const std::string code( const float alpha, const float l1_ratio )
     {
         std::stringstream code;
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import ElasticNet" << std::endl;
         code << "def main( X, y ):" << std::endl;
-        code << "    model = ElasticNet( alpha=1.0, l1_ratio=0.5 )" << std::endl;
+        code << "    model = ElasticNet( "
+             << "alpha=" << kvs::String::ToString( alpha ) << ","
+             << "l1_ratio=" << kvs::String::ToString( l1_ratio )
+             << ")" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
@@ -76,7 +79,9 @@ template <typename T>
 ElasticNetRegression<T>::ElasticNetRegression():
     m_dof( 0 ),
     m_r2( 0.0 ),
-    m_adjusted_r2( 0.0 )
+    m_adjusted_r2( 0.0 ),
+    m_complexity( 1.0 ),
+    m_l1_ratio( 0.5 )
 {
 }
 
@@ -84,7 +89,9 @@ template <typename T>
 ElasticNetRegression<T>::ElasticNetRegression( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep ):
     m_dof( 0 ),
     m_r2( 0.0 ),
-    m_adjusted_r2( 0.0 )
+    m_adjusted_r2( 0.0 ),
+    m_complexity( 1.0 ),
+    m_l1_ratio( 0.5 )
 {
     this->fit( dep, indep );
 }
@@ -95,7 +102,7 @@ void ElasticNetRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::Val
     KVS_ASSERT( dep.size() == indep.column(0).size() );
 
     // Calable python function
-    kvs::python::Callable function = ::Function::Instance().callable();
+    kvs::python::Callable function = ::Function::Instance( m_complexity, m_l1_ratio ).callable();
 
     // Arguments
     kvs::python::Table X( indep );
