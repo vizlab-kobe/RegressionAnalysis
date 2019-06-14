@@ -31,9 +31,9 @@ template <typename Method>
 void Regression( const kvs::ValueArray<float>& dep, const kvs::ValueTable<float>& indep )
 {
     Method method;
-    kvs::Timer timer;
+    method.setComplexity( 1.0 );
 
-    timer.start();
+    kvs::Timer timer( kvs::Timer::Start );
     method.fit( dep, indep );
     timer.stop();
     std::cout << "    Coef: " << method.coef() << std::endl;
@@ -58,9 +58,10 @@ int main( int argc, char** argv )
     kvs::ValueArray<float> X0 = Random<float>( n, 1 );
     kvs::ValueArray<float> X1 = Random<float>( n, 2 );
 
-    std::cout << "Y  = {" << Y << "}" << std::endl;
-    std::cout << "X0 = {" << X0 << "}" << std::endl;
-    std::cout << "X1 = {" << X1 << "}" << std::endl;
+    std::cout << "INPUT DATA" << std::endl;
+    std::cout << "    Y  = {" << Y << "}" << std::endl;
+    std::cout << "    X0 = {" << X0 << "}" << std::endl;
+    std::cout << "    X1 = {" << X1 << "}" << std::endl;
 
     kvs::ValueArray<float> dep( Y );
     kvs::ValueTable<float> indep( n, k );
