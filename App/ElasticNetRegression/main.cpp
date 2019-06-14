@@ -1,13 +1,11 @@
 #include <kvs/MersenneTwister>
 #include <kvs/ValueArray>
 #include <kvs/ValueTable>
-#include <kvs/LinearRegression>
-#include <kvs/StudentTDistribution>
 #include <kvs/Timer>
 #include <iostream>
 #include <fstream>
 #include <iterator>
-#include <RegressionAnalysis/Lib/LinearRegression.h>
+#include <RegressionAnalysis/Lib/ElasticNetRegression.h>
 
 
 template <typename T>
@@ -60,21 +58,17 @@ int main( int argc, char** argv )
     kvs::ValueArray<float> X0 = Random<float>( n, 1 );
     kvs::ValueArray<float> X1 = Random<float>( n, 2 );
 
-    std::cout << "INPUT DATA" << std::endl;
-    std::cout << "    Y  = {" << Y << "}" << std::endl;
-    std::cout << "    X0 = {" << X0 << "}" << std::endl;
-    std::cout << "    X1 = {" << X1 << "}" << std::endl;
+    std::cout << "Y  = {" << Y << "}" << std::endl;
+    std::cout << "X0 = {" << X0 << "}" << std::endl;
+    std::cout << "X1 = {" << X1 << "}" << std::endl;
 
     kvs::ValueArray<float> dep( Y );
     kvs::ValueTable<float> indep( n, k );
     indep[0] = X0;
     indep[1] = X1;
 
-    std::cout << "REGRESSION (kvs::LinearRegression)" << std::endl;
-    Regression<kvs::LinearRegression<float> >( dep, indep );
-
-    std::cout << "REGRESSION (RegressionAnalysis::sklearn::LinearRegression)" << std::endl;
-    Regression<RegressionAnalysis::sklearn::LinearRegression<float> >( dep, indep );
+    std::cout << "REGRESSION (RegressionAnalysis::sklearn::ElasticNetRegression)" << std::endl;
+    Regression<RegressionAnalysis::sklearn::ElasticNetRegression<float> >( dep, indep );
 
     return 0;
 }
