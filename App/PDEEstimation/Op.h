@@ -11,24 +11,24 @@ namespace local
 namespace Op
 {
 
-inline kvs::StructuredVolumeObject* Abs( kvs::StructuredVolumeObject* volume )
+inline kvs::StructuredVolumeObject* Abs( const kvs::StructuredVolumeObject* volume )
 {
     return new kvs::StructuredVectorToScalar( volume );
 }
 
-inline kvs::StructuredVolumeObject* U( kvs::StructuredVolumeObject* volume )
+inline kvs::StructuredVolumeObject* U( const kvs::StructuredVolumeObject* volume )
 {
     KVS_ASSERT( volume->veclen() == 3 );
     return new kvs::StructuredExtractScalar( volume, 0 );
 }
 
-inline kvs::StructuredVolumeObject* V( kvs::StructuredVolumeObject* volume )
+inline kvs::StructuredVolumeObject* V( const kvs::StructuredVolumeObject* volume )
 {
     KVS_ASSERT( volume->veclen() == 3 );
     return new kvs::StructuredExtractScalar( volume, 1 );
 }
 
-inline kvs::StructuredVolumeObject* W( kvs::StructuredVolumeObject* volume )
+inline kvs::StructuredVolumeObject* W( const kvs::StructuredVolumeObject* volume )
 {
     KVS_ASSERT( volume->veclen() == 3 );
     return new kvs::StructuredExtractScalar( volume, 2 );

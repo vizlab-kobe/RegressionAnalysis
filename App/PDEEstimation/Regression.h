@@ -81,6 +81,9 @@ public:
     float complexity() const { return m_complexity; }
     float l1Ratio() const { return m_l1_ratio; }
 
+    const kvs::ValueArray<T>& dependentVariable() const { return m_dependent_variable; }
+    const kvs::ValueTable<T>& independentVariables() const { return m_independent_variables; }
+
     void setDependentVariable( const kvs::ValueArray<T>& variable )
     {
         m_dependent_variable = variable;
@@ -108,8 +111,13 @@ public:
         m_independent_variables.pushBackColumn( variable );
     }
 
-    const kvs::ValueArray<T>& dependentVariable() const { return m_dependent_variable; }
-    const kvs::ValueTable<T>& independentVariables() const { return m_independent_variables; }
+    void resetDependentVariable() { m_dependent_variable.release(); }
+    void resetIndependentVariables() { m_independent_variables.clear(); }
+    void resetVariables()
+    {
+        this->resetDependentVariable();
+        this->resetIndependentVariables();
+    }
 
     float r2() const
     {
@@ -155,7 +163,6 @@ public:
         }
     }
 
-//    void fit( const kvs::ValueArray<float>& dep, const kvs::ValueTable<float>& indep )
     void fit()
     {
         switch ( m_method )
