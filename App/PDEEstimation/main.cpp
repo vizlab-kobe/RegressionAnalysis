@@ -6,15 +6,11 @@
 #include <kvs/Bounds>
 #include <kvs/RayCastingRenderer>
 #include <kvs/Label>
+#include <kvs/Slider>
+#include <kvs/RadioButton>
+#include <kvs/RadioButtonGroup>
 
-#include "Abs.h"
-#include "U.h"
-#include "V.h"
-#include "W.h"
-#include "dX.h"
-#include "dY.h"
-#include "dZ.h"
-#include "dT.h"
+#include "Op.h"
 #include "Sampling.h"
 #include "Box.h"
 #include "Label.h"
@@ -22,23 +18,106 @@
 
 typedef kvs::StructuredVolumeObject Volume;
 
+
+class BoxCenterSlider : public kvs::Slider
+{
+public:
+    BoxCenterSlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Box Center" );
+    }
+};
+
+class BoxLengthSlider : public kvs::Slider
+{
+public:
+    BoxLengthSlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Box Length" );
+    }
+};
+
+class LinearRadioButton : public kvs::RadioButton
+{
+public:
+    LinearRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Linear" );
+    }
+};
+
+class LassoRadioButton : public kvs::RadioButton
+{
+public:
+    LassoRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Lasso" );
+    }
+};
+
+class RidgeRadioButton : public kvs::RadioButton
+{
+public:
+    RidgeRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Ridge" );
+    }
+};
+
+class ElasticNetRadioButton : public kvs::RadioButton
+{
+public:
+    ElasticNetRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Elastic-Net" );
+    }
+};
+
+class ComplexitySlider : public kvs::Slider
+{
+public:
+    ComplexitySlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Complexity" );
+    }
+};
+
+class L1RatioSlider : public kvs::Slider
+{
+public:
+    L1RatioSlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
+    {
+        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "L1 Ratio" );
+    }
+};
+
 int main( int argc, char** argv )
 {
     kvs::glut::Application app( argc, argv );
     kvs::glut::Screen screen( &app );
+    screen.setBackgroundColor( kvs::RGBColor::White() );
+    screen.setSize( 800, 600 );
     screen.show();
 
     Volume* tornado = new kvs::TornadoVolumeData( kvs::Vec3u( 32, 32, 32 ) );
-    Volume* S = local::Abs( tornado );
-    Volume* U = local::U( tornado );
-    Volume* V = local::V( tornado );
-    Volume* W = local::W( tornado );
+    Volume* S = local::Op::Abs( tornado );
+    Volume* U = local::Op::U( tornado );
+    Volume* V = local::Op::V( tornado );
+    Volume* W = local::Op::W( tornado );
     delete tornado;
 
-    Volume* dU_dX = local::dX( U );
-    Volume* dU_dY = local::dY( U );
-    Volume* d2U_dX2 = local::dX( dU_dX );
-    Volume* d2U_dXdY = local::dY( dU_dX );
+    Volume* dU_dX = local::Op::dX( U );
+    Volume* dU_dY = local::Op::dY( U );
+    Volume* d2U_dX2 = local::Op::dX( dU_dX );
+    Volume* d2U_dXdY = local::Op::dY( dU_dX );
     delete U;
     delete V;
     delete W;
@@ -54,6 +133,8 @@ int main( int argc, char** argv )
     const kvs::ValueArray<float> X3 = local::Sampling( npoints, d2U_dXdY, center, length );
 
     local::Regression<float> regression;
+    regression.setMethodToRidge();
+    regression.setComplexity( 0.1 );
     regression.setDependentVariable( Y );
     regression.addIndependentVariable( X0 );
     regression.addIndependentVariable( X1 );
@@ -68,6 +149,85 @@ int main( int argc, char** argv )
     local::Label label( &screen, regression );
     label.setMargin( 10 );
     label.show();
+
+    const size_t slider_width = 150;
+    BoxCenterSlider box_center_slider( &screen );
+    box_center_slider.setMargin( 10 );
+    {
+        const size_t x = screen.width() - ( slider_width + box_center_slider.margin() );
+        const size_t y = 0;
+        box_center_slider.setPosition( x, y );
+        box_center_slider.show();
+    }
+
+    BoxLengthSlider box_length_slider( &screen );
+    box_length_slider.setMargin( 10 );
+    {
+        const size_t x = box_center_slider.x();
+        const size_t y = box_center_slider.y() + box_center_slider.height();
+        box_length_slider.setPosition( x, y );
+        box_length_slider.show();
+    }
+
+    LinearRadioButton linear_radio_button( &screen );
+    linear_radio_button.setMargin( 10 );
+    {
+        const size_t x = box_length_slider.x();
+        const size_t y = box_length_slider.y() + box_length_slider.height();
+        linear_radio_button.setPosition( x, y );
+        linear_radio_button.show();
+    }
+
+    LassoRadioButton lasso_radio_button( &screen );
+    lasso_radio_button.setMargin( 10 );
+    {
+        const size_t x = linear_radio_button.x();
+        const size_t y = linear_radio_button.y() + linear_radio_button.height();
+        lasso_radio_button.setPosition( x, y );
+        lasso_radio_button.show();
+    }
+
+    RidgeRadioButton ridge_radio_button( &screen );
+    ridge_radio_button.setMargin( 10 );
+    {
+        const size_t x = lasso_radio_button.x();
+        const size_t y = lasso_radio_button.y() + lasso_radio_button.height();
+        ridge_radio_button.setPosition( x, y );
+        ridge_radio_button.show();
+    }
+
+    ElasticNetRadioButton elastic_radio_button( &screen );
+    elastic_radio_button.setMargin( 10 );
+    {
+        const size_t x = ridge_radio_button.x();
+        const size_t y = ridge_radio_button.y() + ridge_radio_button.height();
+        elastic_radio_button.setPosition( x, y );
+        elastic_radio_button.show();
+    }
+
+    kvs::RadioButtonGroup radio_group( &screen );
+    radio_group.add( &linear_radio_button );
+    radio_group.add( &lasso_radio_button );
+    radio_group.add( &ridge_radio_button );
+    radio_group.add( &elastic_radio_button );
+
+    ComplexitySlider complexity_slider( &screen );
+    complexity_slider.setMargin( 10 );
+    {
+        const size_t x = elastic_radio_button.x();
+        const size_t y = elastic_radio_button.y() + elastic_radio_button.height();
+        complexity_slider.setPosition( x, y );
+        complexity_slider.show();
+    }
+
+    L1RatioSlider l1_ratio_slider( &screen );
+    l1_ratio_slider.setMargin( 10 );
+    {
+        const size_t x = complexity_slider.x();
+        const size_t y = complexity_slider.y() + complexity_slider.height();
+        l1_ratio_slider.setPosition( x, y );
+        l1_ratio_slider.show();
+    }
 
     return app.run();
 }

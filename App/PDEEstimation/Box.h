@@ -48,6 +48,7 @@ inline kvs::LineObject* Box(
     connects.push_back( 3 ); connects.push_back( 7 );
 
     kvs::LineObject* line_object = new kvs::LineObject();
+    line_object->setName("Box");
     line_object->setMinMaxObjectCoords( object->minObjectCoord(), object->maxObjectCoord() );
     line_object->setMinMaxExternalCoords( object->minExternalCoord(), object->maxExternalCoord() );
     line_object->setLineTypeToSegment();
