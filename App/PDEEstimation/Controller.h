@@ -9,7 +9,6 @@ namespace local
 class Controller
 {
 private:
-//    kvs::glut::Screen* m_screen;
     local::View* m_view;
     local::UI::LinearRadioButton m_linear_radio_button;
     local::UI::LassoRadioButton m_lasso_radio_button;
@@ -21,9 +20,9 @@ private:
     local::UI::Info m_regression_info;
     local::UI::BoxCenterSlider m_box_center_slider;
     local::UI::BoxLengthSlider m_box_length_slider;
+    local::UI::ApplyButton m_apply_button;
 
 public:
-//    Controller( kvs::glut::Screen* screen, const local::Regression<float>& regression ):
     Controller( local::Model* model, local::View* view ):
         m_view( view ),
         m_linear_radio_button( &view->screen() ),
@@ -34,7 +33,8 @@ public:
         m_l1_ratio_slider( &view->screen() ),
         m_regression_info( &view->screen(), model->regression() ),
         m_box_center_slider( &view->screen() ),
-        m_box_length_slider( &view->screen() )
+        m_box_length_slider( &view->screen() ),
+        m_apply_button( &view->screen() )
     {
         this->layout_widgets();
     }
@@ -129,6 +129,16 @@ private:
             m_box_length_slider.setMargin( margin );
             m_box_length_slider.setPosition( x, y );
             m_box_length_slider.show();
+        }
+
+        {
+            const kvs::WidgetBase& parent = m_box_length_slider;
+            const size_t x = parent.x();
+            const size_t y = parent.y() + parent.height() + 10;
+            m_apply_button.setMargin( margin );
+            m_apply_button.setPosition( x, y );
+            m_apply_button.setWidth( width );
+            m_apply_button.show();
         }
     }
 };

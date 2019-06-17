@@ -4,6 +4,7 @@
 #include <kvs/Slider>
 #include <kvs/RadioButton>
 #include <kvs/RadioButtonGroup>
+#include <kvs/PushButton>
 #include "Regression.h"
 
 
@@ -105,6 +106,16 @@ public:
     {
         setFont( kvs::Font( kvs::Font::Sans, 22 ) );
         setCaption( "L1 Ratio" );
+    }
+};
+
+class ApplyButton : public kvs::PushButton
+{
+public:
+    ApplyButton( kvs::glut::Screen* screen ): kvs::PushButton( screen )
+    {
+//        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
+        setCaption( "Apply" );
     }
 };
 
