@@ -11,93 +11,12 @@
 #include <kvs/RadioButtonGroup>
 
 #include "Op.h"
+#include "UI.h"
 #include "Sampling.h"
 #include "Box.h"
-#include "Label.h"
 #include "Regression.h"
 
 typedef kvs::StructuredVolumeObject Volume;
-
-
-class BoxCenterSlider : public kvs::Slider
-{
-public:
-    BoxCenterSlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "Box Center" );
-    }
-};
-
-class BoxLengthSlider : public kvs::Slider
-{
-public:
-    BoxLengthSlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "Box Length" );
-    }
-};
-
-class LinearRadioButton : public kvs::RadioButton
-{
-public:
-    LinearRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "Linear" );
-    }
-};
-
-class LassoRadioButton : public kvs::RadioButton
-{
-public:
-    LassoRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "Lasso" );
-    }
-};
-
-class RidgeRadioButton : public kvs::RadioButton
-{
-public:
-    RidgeRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "Ridge" );
-    }
-};
-
-class ElasticNetRadioButton : public kvs::RadioButton
-{
-public:
-    ElasticNetRadioButton( kvs::glut::Screen* screen ): kvs::RadioButton( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "Elastic-Net" );
-    }
-};
-
-class ComplexitySlider : public kvs::Slider
-{
-public:
-    ComplexitySlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "Complexity" );
-    }
-};
-
-class L1RatioSlider : public kvs::Slider
-{
-public:
-    L1RatioSlider( kvs::glut::Screen* screen ): kvs::Slider( screen )
-    {
-        setFont( kvs::Font( kvs::Font::Sans, 22 ) );
-        setCaption( "L1 Ratio" );
-    }
-};
 
 int main( int argc, char** argv )
 {
@@ -146,39 +65,16 @@ int main( int argc, char** argv )
     screen.registerObject( S, new kvs::Bounds );
     screen.registerObject( S, new kvs::glsl::RayCastingRenderer );
 
-    local::Label label( &screen, regression );
-    label.setMargin( 10 );
-    label.show();
-
-    const size_t slider_width = 150;
-    BoxCenterSlider box_center_slider( &screen );
-    box_center_slider.setMargin( 10 );
-    {
-        const size_t x = screen.width() - ( slider_width + box_center_slider.margin() );
-        const size_t y = 0;
-        box_center_slider.setPosition( x, y );
-        box_center_slider.show();
-    }
-
-    BoxLengthSlider box_length_slider( &screen );
-    box_length_slider.setMargin( 10 );
-    {
-        const size_t x = box_center_slider.x();
-        const size_t y = box_center_slider.y() + box_center_slider.height();
-        box_length_slider.setPosition( x, y );
-        box_length_slider.show();
-    }
-
-    LinearRadioButton linear_radio_button( &screen );
+    local::UI::LinearRadioButton linear_radio_button( &screen );
     linear_radio_button.setMargin( 10 );
     {
-        const size_t x = box_length_slider.x();
-        const size_t y = box_length_slider.y() + box_length_slider.height();
+        const size_t x = 0;
+        const size_t y = 0;
         linear_radio_button.setPosition( x, y );
         linear_radio_button.show();
     }
 
-    LassoRadioButton lasso_radio_button( &screen );
+    local::UI::LassoRadioButton lasso_radio_button( &screen );
     lasso_radio_button.setMargin( 10 );
     {
         const size_t x = linear_radio_button.x();
@@ -187,7 +83,7 @@ int main( int argc, char** argv )
         lasso_radio_button.show();
     }
 
-    RidgeRadioButton ridge_radio_button( &screen );
+    local::UI::RidgeRadioButton ridge_radio_button( &screen );
     ridge_radio_button.setMargin( 10 );
     {
         const size_t x = lasso_radio_button.x();
@@ -196,7 +92,7 @@ int main( int argc, char** argv )
         ridge_radio_button.show();
     }
 
-    ElasticNetRadioButton elastic_radio_button( &screen );
+    local::UI::ElasticNetRadioButton elastic_radio_button( &screen );
     elastic_radio_button.setMargin( 10 );
     {
         const size_t x = ridge_radio_button.x();
@@ -211,7 +107,7 @@ int main( int argc, char** argv )
     radio_group.add( &ridge_radio_button );
     radio_group.add( &elastic_radio_button );
 
-    ComplexitySlider complexity_slider( &screen );
+    local::UI::ComplexitySlider complexity_slider( &screen );
     complexity_slider.setMargin( 10 );
     {
         const size_t x = elastic_radio_button.x();
@@ -220,13 +116,42 @@ int main( int argc, char** argv )
         complexity_slider.show();
     }
 
-    L1RatioSlider l1_ratio_slider( &screen );
+    local::UI::L1RatioSlider l1_ratio_slider( &screen );
     l1_ratio_slider.setMargin( 10 );
     {
         const size_t x = complexity_slider.x();
         const size_t y = complexity_slider.y() + complexity_slider.height();
         l1_ratio_slider.setPosition( x, y );
         l1_ratio_slider.show();
+    }
+
+    local::UI::Info info( &screen, regression );
+    info.setMargin( 10 );
+    {
+        const size_t x = l1_ratio_slider.x();
+        const size_t y = l1_ratio_slider.y() + l1_ratio_slider.height() + 10;
+        info.setPosition( x, y );
+        info.show();
+    }
+
+
+    const size_t slider_width = 150;
+    local::UI::BoxCenterSlider box_center_slider( &screen );
+    box_center_slider.setMargin( 10 );
+    {
+        const size_t x = screen.width() - ( slider_width + box_center_slider.margin() );
+        const size_t y = 0;
+        box_center_slider.setPosition( x, y );
+        box_center_slider.show();
+    }
+
+    local::UI::BoxLengthSlider box_length_slider( &screen );
+    box_length_slider.setMargin( 10 );
+    {
+        const size_t x = box_center_slider.x();
+        const size_t y = box_center_slider.y() + box_center_slider.height();
+        box_length_slider.setPosition( x, y );
+        box_length_slider.show();
     }
 
     return app.run();
