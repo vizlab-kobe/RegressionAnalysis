@@ -16,9 +16,9 @@ namespace
 class Function
 {
 public:
-    static Function& Instance( const float alpha, const float l1_ratio )
+    static Function& Instance()
     {
-        static Function function( alpha, l1_ratio );
+        static Function function;
         return function;
     }
 
@@ -31,10 +31,10 @@ private:
     kvs::python::Interpreter* m_interpreter;
     kvs::python::Module* m_module;
 
-    Function( const float alpha, const float l1_ratio )
+    Function()
     {
         m_interpreter = new kvs::python::Interpreter( true );
-        m_module = new kvs::python::Module( this->code( alpha, l1_ratio ), "Regression" );
+        m_module = new kvs::python::Module( this->code(), "ElasticNetRegression" );
     }
 
     ~Function()
@@ -43,16 +43,13 @@ private:
         delete m_module;
     }
 
-    const std::string code( const float alpha, const float l1_ratio )
+    const std::string code()
     {
         std::stringstream code;
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import ElasticNet" << std::endl;
-        code << "def main( X, y ):" << std::endl;
-        code << "    model = ElasticNet( "
-             << "alpha=" << kvs::String::ToString( alpha ) << ","
-             << "l1_ratio=" << kvs::String::ToString( l1_ratio )
-             << ")" << std::endl;
+        code << "def main( X, y, alpha, l1_ratio ):" << std::endl;
+        code << "    model = ElasticNet( alpha=alpha, l1_ratio=l1_ratio )" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
@@ -102,14 +99,18 @@ void ElasticNetRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::Val
     KVS_ASSERT( dep.size() == indep.column(0).size() );
 
     // Calable python function
-    kvs::python::Callable function = ::Function::Instance( m_complexity, m_l1_ratio ).callable();
+    kvs::python::Callable function = ::Function::Instance().callable();
 
     // Arguments
     kvs::python::Table X( indep );
     kvs::python::Array y( dep );
-    kvs::python::Tuple args( 2 );
+    kvs::python::Float alpha( m_complexity );
+    kvs::python::Float l1_ratio( m_l1_ratio );
+    kvs::python::Tuple args( 4 );
     args.set( 0, X );
     args.set( 1, y );
+    args.set( 2, alpha );
+    args.set( 3, l1_ratio );
 
     // Execute the python function
     kvs::python::List list = function.call( args );

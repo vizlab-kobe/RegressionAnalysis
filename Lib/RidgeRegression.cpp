@@ -16,9 +16,9 @@ namespace
 class Function
 {
 public:
-    static Function& Instance( const float alpha )
+    static Function& Instance()
     {
-        static Function function( alpha );
+        static Function function;
         return function;
     }
 
@@ -31,10 +31,10 @@ private:
     kvs::python::Interpreter* m_interpreter;
     kvs::python::Module* m_module;
 
-    Function( const float alpha )
+    Function()
     {
         m_interpreter = new kvs::python::Interpreter( true );
-        m_module = new kvs::python::Module( this->code( alpha ), "Regression" );
+        m_module = new kvs::python::Module( this->code(), "RidgeRegression" );
     }
 
     ~Function()
@@ -43,15 +43,13 @@ private:
         delete m_module;
     }
 
-    const std::string code( const float alpha )
+    const std::string code()
     {
         std::stringstream code;
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import Ridge" << std::endl;
-        code << "def main( X, y ):" << std::endl;
-        code << "    model = Ridge( "
-             << "alpha=" << kvs::String::ToString( alpha )
-             << ")" << std::endl;
+        code << "def main( X, y, alpha ):" << std::endl;
+        code << "    model = Ridge( alpha=alpha )" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
@@ -99,14 +97,16 @@ void RidgeRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
     KVS_ASSERT( dep.size() == indep.column(0).size() );
 
     // Calable python function
-    kvs::python::Callable function = ::Function::Instance( m_complexity ).callable();
+    kvs::python::Callable function = ::Function::Instance().callable();
 
     // Arguments
     kvs::python::Table X( indep );
     kvs::python::Array y( dep );
-    kvs::python::Tuple args( 2 );
+    kvs::python::Float alpha( m_complexity );
+    kvs::python::Tuple args( 3 );
     args.set( 0, X );
     args.set( 1, y );
+    args.set( 2, alpha );
 
     // Execute the python function
     kvs::python::List list = function.call( args );

@@ -34,7 +34,7 @@ private:
     Function()
     {
         m_interpreter = new kvs::python::Interpreter( true );
-        m_module = new kvs::python::Module( this->code(), "Regression" );
+        m_module = new kvs::python::Module( this->code(), "LinearRegression" );
     }
 
     ~Function()

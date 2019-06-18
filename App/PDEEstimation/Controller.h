@@ -17,7 +17,6 @@ private:
     kvs::RadioButtonGroup m_radio_button_group;
     local::UI::ComplexitySlider m_complexity_slider;
     local::UI::L1RatioSlider m_l1_ratio_slider;
-    local::UI::Info m_regression_info;
     local::UI::BoxCenterSlider m_box_center_slider;
     local::UI::BoxLengthSlider m_box_length_slider;
     local::UI::ApplyButton m_apply_button;
@@ -25,17 +24,17 @@ private:
 public:
     Controller( local::Model* model, local::View* view ):
         m_view( view ),
-        m_linear_radio_button( &view->screen() ),
-        m_lasso_radio_button( &view->screen() ),
-        m_ridge_radio_button( &view->screen() ),
-        m_elastic_radio_button( &view->screen() ),
-        m_complexity_slider( &view->screen() ),
-        m_l1_ratio_slider( &view->screen() ),
-        m_regression_info( &view->screen(), model->regression() ),
-        m_box_center_slider( &view->screen() ),
-        m_box_length_slider( &view->screen() ),
-        m_apply_button( &view->screen() )
+        m_linear_radio_button( model, view ),
+        m_lasso_radio_button( model, view ),
+        m_ridge_radio_button( model, view ),
+        m_elastic_radio_button( model, view ),
+        m_complexity_slider( model, view ),
+        m_l1_ratio_slider( model, view ),
+        m_box_center_slider( model, view ),
+        m_box_length_slider( model, view ),
+        m_apply_button( model, view )
     {
+        m_linear_radio_button.setState( true );
         this->layout_widgets();
     }
 
@@ -102,15 +101,6 @@ private:
             m_l1_ratio_slider.setMargin( 10 );
             m_l1_ratio_slider.setPosition( x, y );
             m_l1_ratio_slider.show();
-        }
-
-        {
-            const kvs::WidgetBase& parent = m_l1_ratio_slider;
-            const size_t x = parent.x();
-            const size_t y = parent.y() + parent.height();
-            m_regression_info.setMargin( margin );
-            m_regression_info.setPosition( x, y + margin );
-            m_regression_info.show();
         }
 
         // Top-right

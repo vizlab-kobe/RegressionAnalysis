@@ -1,5 +1,6 @@
 #pragma once
 #include "Model.h"
+#include "Info.h"
 #include <kvs/glut/Application>
 #include <kvs/glut/Screen>
 #include <kvs/Bounds>
@@ -14,11 +15,13 @@ class View
 private:
     local::Model* m_model;
     kvs::glut::Screen m_screen;
+    local::Info m_info;
 
 public:
     View( kvs::glut::Application* app, local::Model* model ):
         m_model( model ),
-        m_screen( app )
+        m_screen( app ),
+        m_info( &m_screen, model )
     {
         this->setup();
         this->show();
@@ -41,6 +44,7 @@ public:
     void show()
     {
         m_screen.show();
+        m_info.show();
     }
 
     void redraw()

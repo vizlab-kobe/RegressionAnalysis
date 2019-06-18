@@ -62,9 +62,10 @@ public:
     local::Regression<float>& regression() { return m_regression; }
     local::Region& region() { return m_region; }
 
-    const kvs::StructuredVolumeObject* inputVolumeObject() const { return m_input_volume; }
-    const kvs::StructuredVolumeObject* dependentVolumeObject() const { return m_dep_volume; }
-    const kvs::StructuredVolumeObject* independentVolumeObject( const size_t index = 0 ) const { return m_indep_volumes[index]; }
+    const Volume* inputVolumeObject() const { return m_input_volume; }
+    const Volume* dependentVolumeObject() const { return m_dep_volume; }
+    const VolumeList& independentVolumeObjects() const { return m_indep_volumes; }
+    const Volume* independentVolumeObject( const size_t index = 0 ) const { return m_indep_volumes[index]; }
 
     void initializeRegressionModel( const kvs::StructuredVolumeObject* volume )
     {
@@ -103,15 +104,18 @@ public:
     {
         if ( update_sampling_point )
         {
-            m_regression.resetVariables();
+//            m_regression.resetVariables();
 
             const kvs::ValueArray<float> Y = m_region.sampling( m_dep_volume );
             m_regression.setDependentVariable( Y );
+
+            kvs::ValueTable<float> X;
             for ( size_t i = 0; i < m_indep_volumes.size(); i++ )
             {
                 const kvs::ValueArray<float> Xi = m_region.sampling( m_indep_volumes[i] );
-                m_regression.addIndependentVariable( Xi );
+                X.pushBackColumn( Xi );
             }
+            m_regression.setIndependentVariables( X );
         }
         m_regression.fit();
     }
