@@ -6,6 +6,7 @@
 #include <kvs/python/List>
 #include <kvs/python/Array>
 #include <kvs/python/Float>
+#include <kvs/python/Bool>
 #include <kvs/python/NumPy>
 #include <kvs/StudentTDistribution>
 #include <kvs/String>
@@ -49,8 +50,8 @@ private:
         std::stringstream code;
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import Lasso" << std::endl;
-        code << "def main( X, y, alpha ):" << std::endl;
-        code << "    model = Lasso( alpha=alpha )" << std::endl;
+        code << "def main( X, y, alpha, normalize ):" << std::endl;
+        code << "    model = Lasso( alpha=alpha, normalize=normalize )" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
@@ -78,7 +79,8 @@ LassoRegression<T>::LassoRegression():
     m_dof( 0 ),
     m_r2( 0.0 ),
     m_adjusted_r2( 0.0 ),
-    m_complexity( 1.0 )
+    m_complexity( 1.0 ),
+    m_normalize( false )
 {
 }
 
@@ -87,7 +89,8 @@ LassoRegression<T>::LassoRegression( const kvs::ValueArray<T>& dep, const kvs::V
     m_dof( 0 ),
     m_r2( 0.0 ),
     m_adjusted_r2( 0.0 ),
-    m_complexity( 1.0 )
+    m_complexity( 1.0 ),
+    m_normalize( false )
 {
     this->fit( dep, indep );
 }
@@ -104,10 +107,12 @@ void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
     kvs::python::Table X( indep );
     kvs::python::Array y( dep );
     kvs::python::Float alpha( m_complexity );
-    kvs::python::Tuple args( 3 );
+    kvs::python::Bool normalize( m_normalize );
+    kvs::python::Tuple args( 4 );
     args.set( 0, X );
     args.set( 1, y );
     args.set( 2, alpha );
+    args.set( 3, normalize );
 
     // Execute the python function
     kvs::python::List list = function.call( args );

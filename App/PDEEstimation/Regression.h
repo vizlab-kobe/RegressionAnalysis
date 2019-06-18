@@ -91,6 +91,7 @@ public:
         case Lasso:
         {
             LassoRegression regression;
+            regression.setEnabledNormalize( false );
             regression.setComplexity( m_complexity );
             regression.fit( m_dependent_variable, m_independent_variables );
             regression.test();
@@ -103,6 +104,7 @@ public:
         case Ridge:
         {
             RidgeRegression regression;
+            regression.setEnabledNormalize( false );
             regression.setComplexity( m_complexity );
             regression.fit( m_dependent_variable, m_independent_variables );
             regression.test();
@@ -115,6 +117,7 @@ public:
         case ElasticNet:
         {
             ElasticNetRegression regression;
+            regression.setEnabledNormalize( false );
             regression.setComplexity( m_complexity );
             regression.setL1Ratio( m_l1_ratio );
             regression.fit( m_dependent_variable, m_independent_variables );

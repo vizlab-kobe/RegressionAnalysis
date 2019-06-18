@@ -6,6 +6,7 @@
 #include <kvs/python/List>
 #include <kvs/python/Array>
 #include <kvs/python/Float>
+#include <kvs/python/Bool>
 #include <kvs/python/NumPy>
 #include <kvs/StudentTDistribution>
 
@@ -48,8 +49,8 @@ private:
         std::stringstream code;
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import ElasticNet" << std::endl;
-        code << "def main( X, y, alpha, l1_ratio ):" << std::endl;
-        code << "    model = ElasticNet( alpha=alpha, l1_ratio=l1_ratio )" << std::endl;
+        code << "def main( X, y, alpha, l1_ratio, normalize ):" << std::endl;
+        code << "    model = ElasticNet( alpha=alpha, l1_ratio=l1_ratio, normalize=normalize )" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
@@ -78,7 +79,8 @@ ElasticNetRegression<T>::ElasticNetRegression():
     m_r2( 0.0 ),
     m_adjusted_r2( 0.0 ),
     m_complexity( 1.0 ),
-    m_l1_ratio( 0.5 )
+    m_l1_ratio( 0.5 ),
+    m_normalize( false )
 {
 }
 
@@ -88,7 +90,8 @@ ElasticNetRegression<T>::ElasticNetRegression( const kvs::ValueArray<T>& dep, co
     m_r2( 0.0 ),
     m_adjusted_r2( 0.0 ),
     m_complexity( 1.0 ),
-    m_l1_ratio( 0.5 )
+    m_l1_ratio( 0.5 ),
+    m_normalize( false )
 {
     this->fit( dep, indep );
 }
@@ -106,11 +109,13 @@ void ElasticNetRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::Val
     kvs::python::Array y( dep );
     kvs::python::Float alpha( m_complexity );
     kvs::python::Float l1_ratio( m_l1_ratio );
-    kvs::python::Tuple args( 4 );
+    kvs::python::Bool normalize( m_normalize );
+    kvs::python::Tuple args( 5 );
     args.set( 0, X );
     args.set( 1, y );
     args.set( 2, alpha );
     args.set( 3, l1_ratio );
+    args.set( 4, normalize );
 
     // Execute the python function
     kvs::python::List list = function.call( args );

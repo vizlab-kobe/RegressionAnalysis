@@ -24,10 +24,12 @@ private:
     Volume* m_input_volume;
     Volume* m_dep_volume;
     VolumeList m_indep_volumes;
+    bool m_immediate;
 
 public:
     Model( const local::Input& input ):
-        m_input( input )
+        m_input( input ),
+        m_immediate( false )
     {
         if ( input.filename.empty() )
         {
@@ -67,6 +69,11 @@ public:
     const VolumeList& independentVolumeObjects() const { return m_indep_volumes; }
     const Volume* independentVolumeObject( const size_t index = 0 ) const { return m_indep_volumes[index]; }
 
+    bool immediate() const { return m_immediate; }
+    void setEnabledImmediate( const bool enable ) { m_immediate = enable; }
+    void enableImmediate() { setEnabledImmediate( true ); }
+    void disableImmediate() { setEnabledImmediate( false ); }
+
     void initializeRegressionModel( const kvs::StructuredVolumeObject* volume )
     {
         Volume* S = local::Op::Abs( volume );
@@ -104,8 +111,6 @@ public:
     {
         if ( update_sampling_point )
         {
-//            m_regression.resetVariables();
-
             const kvs::ValueArray<float> Y = m_region.sampling( m_dep_volume );
             m_regression.setDependentVariable( Y );
 

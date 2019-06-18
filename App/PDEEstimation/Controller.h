@@ -17,8 +17,12 @@ private:
     kvs::RadioButtonGroup m_radio_button_group;
     local::UI::ComplexitySlider m_complexity_slider;
     local::UI::L1RatioSlider m_l1_ratio_slider;
-    local::UI::BoxCenterSlider m_box_center_slider;
+    local::UI::BoxCenterSlider m_box_center_x_slider;
+    local::UI::BoxCenterSlider m_box_center_y_slider;
+    local::UI::BoxCenterSlider m_box_center_z_slider;
     local::UI::BoxLengthSlider m_box_length_slider;
+    local::UI::PointsSlider m_points_slider;
+    local::UI::ImmediateCheckBox m_immediate_checkbox;
     local::UI::ApplyButton m_apply_button;
 
 public:
@@ -30,8 +34,12 @@ public:
         m_elastic_radio_button( model, view ),
         m_complexity_slider( model, view ),
         m_l1_ratio_slider( model, view ),
-        m_box_center_slider( model, view ),
+        m_box_center_x_slider( model, view, local::UI::BoxCenterSlider::XCoord ),
+        m_box_center_y_slider( model, view, local::UI::BoxCenterSlider::YCoord ),
+        m_box_center_z_slider( model, view, local::UI::BoxCenterSlider::ZCoord ),
         m_box_length_slider( model, view ),
+        m_points_slider( model, view ),
+        m_immediate_checkbox( model, view ),
         m_apply_button( model, view )
     {
         m_linear_radio_button.setState( true );
@@ -107,13 +115,31 @@ private:
         {
             const size_t x = m_view->screen().width() - ( width + margin );
             const size_t y = 0;
-            m_box_center_slider.setMargin( margin );
-            m_box_center_slider.setPosition( x, y );
-            m_box_center_slider.show();
+            m_box_center_x_slider.setMargin( margin );
+            m_box_center_x_slider.setPosition( x, y );
+            m_box_center_x_slider.show();
         }
 
         {
-            const kvs::WidgetBase& parent = m_box_center_slider;
+            const kvs::WidgetBase& parent = m_box_center_x_slider;
+            const size_t x = parent.x();
+            const size_t y = parent.y() + parent.height();
+            m_box_center_y_slider.setMargin( margin );
+            m_box_center_y_slider.setPosition( x, y );
+            m_box_center_y_slider.show();
+        }
+
+        {
+            const kvs::WidgetBase& parent = m_box_center_y_slider;
+            const size_t x = parent.x();
+            const size_t y = parent.y() + parent.height();
+            m_box_center_z_slider.setMargin( margin );
+            m_box_center_z_slider.setPosition( x, y );
+            m_box_center_z_slider.show();
+        }
+
+        {
+            const kvs::WidgetBase& parent = m_box_center_z_slider;
             const size_t x = parent.x();
             const size_t y = parent.y() + parent.height();
             m_box_length_slider.setMargin( margin );
@@ -123,6 +149,24 @@ private:
 
         {
             const kvs::WidgetBase& parent = m_box_length_slider;
+            const size_t x = parent.x();
+            const size_t y = parent.y() + parent.height();
+            m_points_slider.setMargin( margin );
+            m_points_slider.setPosition( x, y );
+            m_points_slider.show();
+        }
+
+        {
+            const kvs::WidgetBase& parent = m_points_slider;
+            const size_t x = parent.x();
+            const size_t y = parent.y() + parent.height();
+            m_immediate_checkbox.setMargin( margin );
+            m_immediate_checkbox.setPosition( x, y );
+            m_immediate_checkbox.show();
+        }
+
+        {
+            const kvs::WidgetBase& parent = m_immediate_checkbox;
             const size_t x = parent.x();
             const size_t y = parent.y() + parent.height() + 10;
             m_apply_button.setMargin( margin );

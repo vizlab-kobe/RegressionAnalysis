@@ -6,6 +6,7 @@
 #include <kvs/python/List>
 #include <kvs/python/Array>
 #include <kvs/python/Float>
+#include <kvs/python/Bool>
 #include <kvs/python/NumPy>
 #include <kvs/StudentTDistribution>
 
@@ -48,8 +49,8 @@ private:
         std::stringstream code;
         code << "import numpy as np" << std::endl;
         code << "from sklearn.linear_model import LinearRegression" << std::endl;
-        code << "def main( X, y ):" << std::endl;
-        code << "    model = LinearRegression()" << std::endl;
+        code << "def main( X, y, normalize ):" << std::endl;
+        code << "    model = LinearRegression( normalize=normalize)" << std::endl;
         code << "    model.fit( X, y )" << std::endl;
         code << "    r2 = model.score( X, y )" << std::endl;
         code << "    coef = np.append( model.intercept_, model.coef_ )" << std::endl;
@@ -76,7 +77,8 @@ template <typename T>
 LinearRegression<T>::LinearRegression():
     m_dof( 0 ),
     m_r2( 0.0 ),
-    m_adjusted_r2( 0.0 )
+    m_adjusted_r2( 0.0 ),
+    m_normalize( false )
 {
 }
 
@@ -84,7 +86,8 @@ template <typename T>
 LinearRegression<T>::LinearRegression( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep ):
     m_dof( 0 ),
     m_r2( 0.0 ),
-    m_adjusted_r2( 0.0 )
+    m_adjusted_r2( 0.0 ),
+    m_normalize( false )
 {
     this->fit( dep, indep );
 }
@@ -100,9 +103,11 @@ void LinearRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTa
     // Arguments
     kvs::python::Table X( indep );
     kvs::python::Array y( dep );
-    kvs::python::Tuple args( 2 );
+    kvs::python::Bool normalize( m_normalize );
+    kvs::python::Tuple args( 3 );
     args.set( 0, X );
     args.set( 1, y );
+    args.set( 2, normalize );
 
     // Execute the python function
     kvs::python::List list = function.call( args );
