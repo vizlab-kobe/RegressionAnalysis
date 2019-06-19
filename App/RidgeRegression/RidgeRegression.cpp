@@ -1,4 +1,4 @@
-#include "LassoRegression.h"
+#include "RidgeRegression.h"
 #include <kvs/StudentTDistribution>
 #include <kvs/Matrix>
 #include <kvs/Vector>
@@ -24,41 +24,22 @@ T DevSQ( const kvs::Vector<T>& vec )
 }
 
 template <typename T>
-T SoftThresholding( const T x, const T lambda )
+kvs::Matrix<T> Identity( const size_t size )
 {
-    if ( x > T(0) && lambda < kvs::Math::Abs( x ) ) return x - lambda;
-    else if ( x < T(0) && lambda < kvs::Math::Abs( x ) ) return x + lambda;
-    else return T(0);
+    kvs::Matrix<T> m( size, size );
+    m.identity();
+    m[0][0] = T(0);
+    return m;
 }
 
-template <typename T>
-T Intercept( const kvs::Vector<T>& Y, const kvs::Matrix<T>& X, const kvs::Vector<T>& beta )
-{
-    const size_t n = Y.size();
-    T sum = T(0);
-    for ( size_t i = 0; i < n; i++ )
-    {
-        sum += Y[i] - ( X[i].dot( beta ) - X[i][0] * beta[0] );
-    }
-    return sum / T(n);
 }
 
-template <typename T>
-kvs::Vector<T> Column( const kvs::Matrix<T>& X, const size_t index )
-{
-    const size_t nrows = X.rowSize();
-    kvs::Vector<T> column( nrows );
-    for ( size_t i = 0; i < nrows; i++ ) { column[i] = X[i][index]; }
-    return column;
-}
-
-} // end of namespace
 
 namespace local
 {
 
 template <typename T>
-LassoRegression<T>::LassoRegression():
+RidgeRegression<T>::RidgeRegression():
     m_dof( 0 ),
     m_r2( 0.0 ),
     m_adjusted_r2( 0.0 ),
@@ -68,7 +49,7 @@ LassoRegression<T>::LassoRegression():
 }
 
 template <typename T>
-LassoRegression<T>::LassoRegression( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep ):
+RidgeRegression<T>::RidgeRegression( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep ):
     m_dof( 0 ),
     m_r2( 0.0 ),
     m_adjusted_r2( 0.0 ),
@@ -79,7 +60,7 @@ LassoRegression<T>::LassoRegression( const kvs::ValueArray<T>& dep, const kvs::V
 }
 
 template <typename T>
-void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep )
+void RidgeRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTable<T>& indep )
 {
     KVS_ASSERT( dep.size() == indep.column(0).size() );
 
@@ -99,26 +80,11 @@ void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
         }
     }
 
-    // Coordinate Descent Algorithm
-    // T.T.Wu and K.Lange, Coordinate descent algorithms for lasso penalized regression,
-    // The Annals of Applied Statistics, Vol.2, No.1, pp.224-244, 2008
-
-    // Initialize coefficients
-    m_coef.setSize( ncols );
-    m_coef[0] = ::Intercept<T>( Y, X, m_coef );
-    const size_t max_iterations = 100;
-    const float lambda = m_complexity * nrows;
-    for ( size_t i = 0; i < max_iterations; i++ )
-    {
-        for ( size_t j = 1; j < ncols; j++ )
-        {
-            kvs::Vector<T> beta = m_coef; beta[j] = T(0);
-            const kvs::Vector<T> rj = Y - X * beta;
-            const kvs::Vector<T> Xj = ::Column( X, j );
-            m_coef[j] = ::SoftThresholding<T>( Xj.dot( rj ), lambda ) / Xj.length2();
-            m_coef[0] = ::Intercept<T>( Y, X, m_coef );
-        }
-    }
+    const kvs::Matrix<T> Xt = X.transposed();
+    const kvs::Matrix<T> XtX = Xt * X;
+    const kvs::Vector<T> XtY = Xt * Y;
+    const kvs::Matrix<T> I = ::Identity<T>( XtX[0].size() );
+    m_coef = ( XtX + m_complexity * I ).inverted() * XtY;
 
     // Degree of freedom
     const size_t n = dep.size();
@@ -132,8 +98,6 @@ void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
     m_adjusted_r2 = 1.0 - ( 1.0 - m_r2 ) * ( n - 1.0 ) / m_dof;
 
     // Standard error
-    const kvs::Matrix<T> Xt = X.transposed();
-    const kvs::Matrix<T> XtX = Xt * X;
     const kvs::Matrix<T> XtX_inv = XtX.inverted();
     const kvs::Real64 ve = rss / m_dof;
     m_standard_errors.setSize( m_coef.size() );
@@ -144,7 +108,7 @@ void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
 }
 
 template <typename T>
-void LassoRegression<T>::test()
+void RidgeRegression<T>::test()
 {
     m_t_values.setSize( m_coef.size() );
     m_p_values.setSize( m_coef.size() );
@@ -157,7 +121,7 @@ void LassoRegression<T>::test()
 }
 
 // template instantiation
-template class LassoRegression<float>;
-template class LassoRegression<double>;
+template class RidgeRegression<float>;
+template class RidgeRegression<double>;
 
 } // end of namespace local

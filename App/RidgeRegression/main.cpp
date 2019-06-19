@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iterator>
 #include <RegressionAnalysis/Lib/RidgeRegression.h>
+#include "RidgeRegression.h"
 
 
 template <typename T>
@@ -70,6 +71,10 @@ int main( int argc, char** argv )
 
     std::cout << "REGRESSION (RegressionAnalysis::sklearn::RidgeRegression)" << std::endl;
     Regression<RegressionAnalysis::sklearn::RidgeRegression<float> >( dep, indep );
+    Regression<RegressionAnalysis::sklearn::RidgeRegression<float> >( dep, indep );
+
+    std::cout << "REGRESSION (local::RidgeRegression)" << std::endl;
+    Regression<local::RidgeRegression<float> >( dep, indep );
 
     return 0;
 }
