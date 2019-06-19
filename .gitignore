@@ -33,3 +33,4 @@
 *.kvs
 App/LinearRegression/LinearRegression
 App/PDEEstimation/PDEEstimation
+App/LassoRegression/LassoRegression
