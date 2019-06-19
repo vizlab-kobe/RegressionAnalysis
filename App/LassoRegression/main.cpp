@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iterator>
 #include <RegressionAnalysis/Lib/LassoRegression.h>
-#include "LassoRegression.h"
+#include <kvs/LassoRegression>
 
 
 template <typename T>
@@ -75,7 +75,7 @@ int main( int argc, char** argv )
     Regression<RegressionAnalysis::sklearn::LassoRegression<float> >( dep, indep );
 
     std::cout << "REGRESSION (local::LassoRegression)" << std::endl;
-    Regression<local::LassoRegression<float> >( dep, indep );
+    Regression<kvs::LassoRegression<float> >( dep, indep );
 
     return 0;
 }
