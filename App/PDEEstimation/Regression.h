@@ -2,6 +2,9 @@
 #include <kvs/ValueArray>
 #include <kvs/ValueTable>
 #include <kvs/LinearRegression>
+#include <kvs/LassoRegression>
+#include <kvs/RidgeRegression>
+#include <RegressionAnalysis/Lib/LinearRegression.h>
 #include <RegressionAnalysis/Lib/LassoRegression.h>
 #include <RegressionAnalysis/Lib/RidgeRegression.h>
 #include <RegressionAnalysis/Lib/ElasticNetRegression.h>
@@ -24,8 +27,11 @@ public:
 
 private:
     typedef kvs::LinearRegression<T> LinearRegression;
-    typedef RegressionAnalysis::sklearn::LassoRegression<T> LassoRegression;
-    typedef RegressionAnalysis::sklearn::RidgeRegression<T> RidgeRegression;
+    typedef kvs::LassoRegression<T> LassoRegression;
+    typedef kvs::RidgeRegression<T> RidgeRegression;
+    //typedef RegressionAnalysis::sklearn::LinearRegression<T> LinearRegression;
+    //typedef RegressionAnalysis::sklearn::LassoRegression<T> LassoRegression;
+    //typedef RegressionAnalysis::sklearn::RidgeRegression<T> RidgeRegression;
     typedef RegressionAnalysis::sklearn::ElasticNetRegression<T> ElasticNetRegression;
 
     Method m_method;
