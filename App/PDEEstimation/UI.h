@@ -137,7 +137,7 @@ public:
     {
         const kvs::Vec3 dim( m_model->inputVolumeObject()->resolution() );
         const kvs::Vec3 d1 = m_model->region().center();
-        const kvs::Vec3 d2 = dim - kvs::Vec3::All(1.0) - d1;
+        const kvs::Vec3 d2 = dim - kvs::Vec3::Constant(1.0) - d1;
         const float d1_min = kvs::Math::Min( d1.x(), d1.y(), d1.z() );
         const float d2_min = kvs::Math::Min( d2.x(), d2.y(), d2.z() );
         const float max_value = kvs::Math::Min( d1_min, d2_min );

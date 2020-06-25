@@ -35,7 +35,7 @@ public:
         const unsigned long seed = 0;
         kvs::MersenneTwister R( seed );
         kvs::UniformGrid grid( volume );
-        const kvs::Vec3 corner = m_center - kvs::Vec3::All( m_length * 0.5f );
+        const kvs::Vec3 corner = m_center - kvs::Vec3::Constant( m_length * 0.5f );
         for ( size_t i = 0; i < m_npoints; i++ )
         {
             const kvs::Vec3 p = corner + kvs::Vec3( R(), R(), R() ) * m_length;
@@ -48,8 +48,8 @@ public:
 
     kvs::LineObject* bounds( const kvs::StructuredVolumeObject* parent )
     {
-        const kvs::Vec3 min = m_center - kvs::Vec3::All( m_length * 0.5f );
-        const kvs::Vec3 max = m_center + kvs::Vec3::All( m_length * 0.5f );
+        const kvs::Vec3 min = m_center - kvs::Vec3::Constant( m_length * 0.5f );
+        const kvs::Vec3 max = m_center + kvs::Vec3::Constant( m_length * 0.5f );
 
         std::vector<kvs::Real32> coords;
         std::vector<kvs::UInt32> connects;

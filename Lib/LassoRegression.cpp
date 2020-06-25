@@ -132,8 +132,8 @@ void LassoRegression<T>::fit( const kvs::ValueArray<T>& dep, const kvs::ValueTab
 template <typename T>
 void LassoRegression<T>::test()
 {
-    m_t_values.setSize( m_coef.size() );
-    m_p_values.setSize( m_coef.size() );
+    m_t_values.resize( m_coef.size() );
+    m_p_values.resize( m_coef.size() );
     kvs::StudentTDistribution tdist( m_dof );
     for ( size_t i = 0; i < m_coef.size(); i++ )
     {
