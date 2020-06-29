@@ -35,3 +35,4 @@ App/LinearRegression/LinearRegression
 App/PDEEstimation/PDEEstimation
 App/LassoRegression/LassoRegression
 App/RidgeRegression/RidgeRegression
+App/DeepRegressionVolume/DeepRegressionVolume

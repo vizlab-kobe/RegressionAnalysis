@@ -13,7 +13,7 @@
 #include <kvs/Bounds>
 
 
-kvs::ValueArray<kvs::Real32> drv( const kvs::Vec3i dim, const std::string& model_file )
+kvs::ValueArray<kvs::Real32> Predict( const kvs::Vec3i dim, const std::string& model_file )
 {
     kvs::python::Interpreter intepreter;
 
@@ -45,8 +45,7 @@ int main( int argc, char** argv )
     kvs::Timer timer( kvs::Timer::Start );
     const kvs::Vec3i dim( 20, 20, 20 );
     const std::string mode_file( "./DL_s1000_ic1.h5" );
-//    const auto values = drv( dimx, dimy, dimz );
-    const auto values = drv( dim, mode_file );
+    const auto values = Predict( dim, mode_file );
     timer.stop();
     std::cout << "Proccesing time: " << timer.sec() << " [sec]" << std::endl;
 
@@ -59,8 +58,14 @@ int main( int argc, char** argv )
     object->print( std::cout );
     //object->write("output.kvsml");
 
-    screen.registerObject( object, new kvs::Bounds() );
-    screen.registerObject( object, new kvs::glsl::RayCastingRenderer() );
+    auto* renderer = new kvs::glsl::RayCastingRenderer();
+    renderer->setTransferFunction( kvs::ColorMap::BrewerSpectral( 256 ) );
+
+    auto* bounds = new kvs::Bounds();
+    bounds->setLineWidth( 2.0f );
+
+    screen.registerObject( object, bounds );
+    screen.registerObject( object, renderer );
 
     return app.run();
 }
