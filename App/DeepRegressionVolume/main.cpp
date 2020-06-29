@@ -17,7 +17,7 @@ kvs::ValueArray<kvs::Real32> Predict( const kvs::Vec3i dim, const std::string& m
 {
     kvs::python::Interpreter intepreter;
 
-    const char* script_file_name = "drv";
+    const char* script_file_name = "pred";
     const char* func_name = "main";
 
     kvs::python::Module module( script_file_name );
