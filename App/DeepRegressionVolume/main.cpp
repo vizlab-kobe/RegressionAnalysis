@@ -27,7 +27,6 @@ kvs::ValueArray<kvs::Real32> drv( const int dimx, const int dimy, const int dimz
     args.set( 0, kvs::python::Int( dimx ) );
     args.set( 1, kvs::python::Int( dimy ) );
     args.set( 2, kvs::python::Int( dimz ) );
-
     kvs::python::Array values = func.call( args  );
 
     return kvs::ValueArray<kvs::Real32>( values );
@@ -40,10 +39,14 @@ int main( int argc, char** argv )
     screen.setTitle( "Deep Regression Volume" );
     screen.create();
 
-    const int dimx = 10;
-    const int dimy = 10;
-    const int dimz = 10;
+    std::cout << "Prediction ..." << std::endl;
+    kvs::Timer timer( kvs::Timer::Start );
+    const int dimx = 20;
+    const int dimy = 20;
+    const int dimz = 20;
     const auto values = drv( dimx, dimy, dimz );
+    timer.stop();
+    std::cout << "Proccesing time: " << timer.sec() << " [sec]" << std::endl;
 
     auto* object = new kvs::StructuredVolumeObject();
     object->setGridTypeToUniform();
@@ -51,6 +54,8 @@ int main( int argc, char** argv )
     object->setResolution( kvs::Vec3u( dimx, dimy, dimz ) );
     object->setValues( values );
     object->updateMinMaxValues();
+    object->print( std::cout );
+    //object->write("output.kvsml");
 
     screen.registerObject( object, new kvs::Bounds() );
     screen.registerObject( object, new kvs::glsl::RayCastingRenderer() );
