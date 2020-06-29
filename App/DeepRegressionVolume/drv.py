@@ -2,11 +2,12 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 
-def main( dimx, dimy, dimz ):
+def main( dimx, dimy, dimz, model_file ):
     # values = np.zeros( dimx * dimy * dimz, dtype = np.float32 )
 
     # machine learning model
-    model = keras.models.load_model('./DL_s1000_ic1.h5')
+    #model = keras.models.load_model('./DL_s1000_ic1.h5')
+    model = keras.models.load_model( model_file )
 
     # NN solution
     values = np.zeros(dimx * dimy * dimz, dtype = np.float32)

@@ -3,6 +3,7 @@
 #include <kvs/python/Interpreter>
 #include <kvs/python/Module>
 #include <kvs/python/Int>
+#include <kvs/python/String>
 #include <kvs/python/Dict>
 #include <kvs/python/Callable>
 #include <kvs/python/Tuple>
@@ -12,7 +13,7 @@
 #include <kvs/Bounds>
 
 
-kvs::ValueArray<kvs::Real32> drv( const int dimx, const int dimy, const int dimz )
+kvs::ValueArray<kvs::Real32> drv( const kvs::Vec3i dim, const std::string& model_file )
 {
     kvs::python::Interpreter intepreter;
 
@@ -23,10 +24,11 @@ kvs::ValueArray<kvs::Real32> drv( const int dimx, const int dimy, const int dimz
     kvs::python::Dict dict = module.dict();
     kvs::python::Callable func( dict.find( func_name ) );
 
-    kvs::python::Tuple args( 3 );
-    args.set( 0, kvs::python::Int( dimx ) );
-    args.set( 1, kvs::python::Int( dimy ) );
-    args.set( 2, kvs::python::Int( dimz ) );
+    kvs::python::Tuple args( 4 );
+    args.set( 0, kvs::python::Int( dim.x() ) );
+    args.set( 1, kvs::python::Int( dim.y() ) );
+    args.set( 2, kvs::python::Int( dim.z() ) );
+    args.set( 3, kvs::python::String( model_file ) );
     kvs::python::Array values = func.call( args  );
 
     return kvs::ValueArray<kvs::Real32>( values );
@@ -41,17 +43,17 @@ int main( int argc, char** argv )
 
     std::cout << "Prediction ..." << std::endl;
     kvs::Timer timer( kvs::Timer::Start );
-    const int dimx = 20;
-    const int dimy = 20;
-    const int dimz = 20;
-    const auto values = drv( dimx, dimy, dimz );
+    const kvs::Vec3i dim( 20, 20, 20 );
+    const std::string mode_file( "./DL_s1000_ic1.h5" );
+//    const auto values = drv( dimx, dimy, dimz );
+    const auto values = drv( dim, mode_file );
     timer.stop();
     std::cout << "Proccesing time: " << timer.sec() << " [sec]" << std::endl;
 
     auto* object = new kvs::StructuredVolumeObject();
     object->setGridTypeToUniform();
     object->setVeclen( 1 );
-    object->setResolution( kvs::Vec3u( dimx, dimy, dimz ) );
+    object->setResolution( kvs::Vec3u( dim ) );
     object->setValues( values );
     object->updateMinMaxValues();
     object->print( std::cout );
