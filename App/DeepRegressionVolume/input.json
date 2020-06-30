@@ -1,0 +1,5 @@
+{
+    "model_file": "DL_s1000_ic1.h5",
+    "dim": [20, 20,20],
+    "output": false
+}

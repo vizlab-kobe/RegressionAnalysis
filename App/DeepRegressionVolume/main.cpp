@@ -11,6 +11,8 @@
 #include <kvs/StructuredVolumeObject>
 #include <kvs/RayCastingRenderer>
 #include <kvs/Bounds>
+#include <kvs/Json>
+#include <kvs/File>
 
 
 kvs::ValueArray<kvs::Real32> Predict( const kvs::Vec3i dim, const std::string& model_file )
@@ -41,11 +43,20 @@ int main( int argc, char** argv )
     screen.setTitle( "Deep Regression Volume" );
     screen.create();
 
+    kvs::Json input( ( argc > 1 ) ? std::string( argv[1] ) : "input.json" );
+    auto& o = input.rootObject();
+    const std::string model_file = o["model_file"].get<std::string>();
+    const bool output = o["output"].get<bool>();
+    kvs::Vec3i dim;
+    int i = 0;
+    for ( auto& d : o["dim"].get<kvs::Json::Array>() )
+    {
+        dim[i++] = static_cast<int>( d.get<double>() );
+    }
+
     std::cout << "Prediction ..." << std::endl;
     kvs::Timer timer( kvs::Timer::Start );
-    const kvs::Vec3i dim( 20, 20, 20 );
-    const std::string mode_file( "./DL_s1000_ic1.h5" );
-    const auto values = Predict( dim, mode_file );
+    const auto values = Predict( dim, model_file );
     timer.stop();
     std::cout << "Proccesing time: " << timer.sec() << " [sec]" << std::endl;
 
@@ -56,7 +67,7 @@ int main( int argc, char** argv )
     object->setValues( values );
     object->updateMinMaxValues();
     object->print( std::cout );
-    //object->write("output.kvsml");
+    if ( output ) { object->write( kvs::File( model_file ).baseName() + ".kvsml" ); }
 
     auto* renderer = new kvs::glsl::RayCastingRenderer();
     renderer->setTransferFunction( kvs::ColorMap::BrewerSpectral( 256 ) );
